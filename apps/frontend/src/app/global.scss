@@ -16,6 +16,10 @@ body {
   color: var(--new-btn-text);
 }
 
+.mrbox-logo-on-light { display: none; }
+body.light .mrbox-logo-on-light { display: block; }
+body.light .mrbox-logo-on-dark { display: none; }
+
 body * {
   outline: none !important;
 }
