@@ -16,7 +16,7 @@ import { CreationMethodBadge } from '@gitroom/frontend/components/launches/creat
 
 dayjs.extend(utc);
 export const metadata: Metadata = {
-  title: `Mr Box Social Preview`,
+  title: `Viral Starz Preview`,
   description: '',
 };
 export default async function Auth(
@@ -58,7 +58,7 @@ export default async function Auth(
                 >
                   <div className="max-w-[55px]">
                     <SafeImage
-                      src={'/mrbox-icon.png'}
+                      src={'/viralstarz-icon.png'}
                       width={55}
                       height={55}
                       alt="Logo"

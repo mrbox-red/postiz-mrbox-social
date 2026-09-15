@@ -34,9 +34,14 @@ export class AuthController {
   ) {}
 
   @Get('/can-register')
-  async canRegister() {
+  async canRegister(@Req() req: Request, @Query('org') org?: string) {
+    // Viral Starz: con un invito valido (cookie o query) la registrazione
+    // resta possibile anche quando DISABLE_REGISTRATION=true.
+    const invite = this._authService.getOrgFromCookie(org || req?.cookies?.org);
     return {
-      register: await this._authService.canRegister(Provider.LOCAL as string),
+      register:
+        !!invite ||
+        (await this._authService.canRegister(Provider.LOCAL as string)),
     };
   }
 

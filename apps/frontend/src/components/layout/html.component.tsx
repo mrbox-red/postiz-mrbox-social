@@ -1,23 +1,16 @@
 'use client';
-import { FC, ReactNode, useEffect, useState } from 'react';
-import { useTranslationSettings } from '@gitroom/react/translation/get.transation.service.client';
+import { FC, useEffect } from 'react';
 
+// Viral Starz: solo italiano. La direzione è sempre da sinistra a destra.
+// Prima veniva letta da i18next.dir(), che restituisce "rtl" finché la lingua
+// non è ancora risolta e specchiava il calendario.
 export const HtmlComponent: FC = () => {
-  const settings = useTranslationSettings();
-  const [dir, setDir] = useState(settings.dir());
-
-  useEffect(() => {
-    settings.on('languageChanged', (lng) => {
-      setDir(settings.dir());
-    });
-  }, []);
-
   useEffect(() => {
     const htmlElement = document.querySelector('html');
     if (htmlElement) {
-      htmlElement.setAttribute('dir', dir);
+      htmlElement.setAttribute('dir', 'ltr');
     }
-  }, [dir]);
+  }, []);
 
   return null;
 };

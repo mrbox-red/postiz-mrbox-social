@@ -1,21 +1,12 @@
 'use client';
 
-import useCookie from 'react-use-cookie';
-import {
-  cookieName,
-  fallbackLng,
-} from '@gitroom/react/translation/i18n.config';
-import i18next from 'i18next';
 import { FC, useEffect } from 'react';
 
+// Viral Starz: solo italiano, quindi la pagina è sempre da sinistra a destra
+// (anche con un vecchio cookie di lingua "he" o "ar" rimasto nel browser).
 export const ChangeDir: FC = () => {
-  const currentLanguage = i18next.resolvedLanguage || fallbackLng;
-  const [language] = useCookie(cookieName, currentLanguage || fallbackLng);
-
   useEffect(() => {
-    const rtlLanguages = ['he', 'ar'];
-    const dir = rtlLanguages.includes(language) ? 'rtl' : 'ltr';
-    document.documentElement.setAttribute('dir', dir);
+    document.documentElement.setAttribute('dir', 'ltr');
   }, []);
 
   return null;

@@ -3,7 +3,7 @@ import { Login } from '@gitroom/frontend/components/auth/login';
 import { Metadata } from 'next';
 import { isGeneralServerSide } from '@gitroom/helpers/utils/is.general.server.side';
 export const metadata: Metadata = {
-  title: `Mr Box Social Login`,
+  title: `Viral Starz Login`,
   description: '',
 };
 export default async function Auth() {

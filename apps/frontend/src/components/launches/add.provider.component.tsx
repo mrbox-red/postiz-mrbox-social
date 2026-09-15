@@ -346,7 +346,7 @@ const ChromeExtensionWarning: FC<{
           We will store your cookies securely to facilitate the connection.
         </li>
         <li>
-          Mr Box Social does not take responsibility for any issues arising or account
+          Viral Starz does not take responsibility for any issues arising or account
           termination due to the use of this method.
         </li>
       </ul>

@@ -18,6 +18,7 @@ import { useToaster } from '@gitroom/react/toaster/toaster';
 import { useSWRConfig } from 'swr';
 import clsx from 'clsx';
 import { TeamsComponent } from '@gitroom/frontend/components/settings/teams.component';
+import { SubaccountsComponent } from '@gitroom/frontend/components/settings/subaccounts.component';
 import { useUser } from '@gitroom/frontend/components/layout/user.context';
 import { LogoutComponent } from '@gitroom/frontend/components/layout/logout.component';
 import { useSearchParams } from 'next/navigation';
@@ -87,6 +88,9 @@ export const SettingsPopup: FC<{
   const list = useMemo(() => {
     const arr = [];
     arr.push({ tab: 'global_settings', label: t('global_settings', 'Global Settings') });
+    if (user?.admin) {
+      arr.push({ tab: 'subaccounts', label: t('subaccounts', 'Subaccounts') });
+    }
     // Populate tabs based on user permissions
     if (user?.tier?.team_members && isGeneral) {
       arr.push({ tab: 'teams', label: t('teams', 'Teams') });
@@ -163,6 +167,11 @@ export const SettingsPopup: FC<{
               {tab === 'global_settings' && (
                 <div>
                   <GlobalSettings />
+                </div>
+              )}
+              {tab === 'subaccounts' && !!user?.admin && (
+                <div>
+                  <SubaccountsComponent />
                 </div>
               )}
               {tab === 'teams' && !!user?.tier?.team_members && isGeneral && (

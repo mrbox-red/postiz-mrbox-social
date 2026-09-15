@@ -4,7 +4,7 @@ import { Metadata } from 'next';
 import { isGeneralServerSide } from '@gitroom/helpers/utils/is.general.server.side';
 
 export const metadata: Metadata = {
-  title: `Mr Box Social Admin Stats`,
+  title: `Viral Starz Admin Stats`,
   description: '',
 };
 

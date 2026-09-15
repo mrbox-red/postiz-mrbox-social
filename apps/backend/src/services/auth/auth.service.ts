@@ -52,6 +52,33 @@ export class AuthService {
           throw new Error('Email already exists');
         }
 
+        const invite =
+          addToOrg && typeof addToOrg !== 'boolean' ? addToOrg : null;
+
+        // Viral Starz: chi arriva da un invito valido entra SOLO nel
+        // subaccount che lo invita (niente organizzazione personale vuota)
+        // e può registrarsi anche quando le registrazioni sono chiuse.
+        if (invite) {
+          const invited =
+            await this._organizationService.createUserInOrganization(
+              body,
+              ip,
+              userAgent,
+              invite
+            );
+          const invitedObj = {
+            addedOrg: { organizationId: invite.orgId },
+            jwt: await this.jwt(invited),
+          };
+          await this._emailService.sendEmail(
+            body.email,
+            'Activate your account',
+            `Click <a href="${process.env.FRONTEND_URL}/auth/activate/${invitedObj.jwt}">here</a> to activate your account`,
+            'top'
+          );
+          return invitedObj;
+        }
+
         if (!(await this.canRegister(provider))) {
           throw new Error('Registration is disabled');
         }

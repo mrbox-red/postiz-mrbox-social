@@ -189,6 +189,61 @@ export class OrganizationService {
     );
   }
 
+  createUserInOrganization(
+    body: Omit<CreateOrgUserDto, 'providerToken'>,
+    ip: string,
+    userAgent: string,
+    invite: { id: string; orgId: string; role: 'USER' | 'ADMIN' }
+  ) {
+    return this._organizationRepository.createUserInOrganization(
+      body,
+      this._notificationsService.hasEmailProvider(),
+      ip,
+      userAgent,
+      invite
+    );
+  }
+
+  getAllOrganizations(userId: string) {
+    return this._organizationRepository.getAllOrganizations(userId);
+  }
+
+  createSubaccount(name: string, userId: string) {
+    return this._organizationRepository.createSubaccount(name.trim(), userId);
+  }
+
+  async renameSubaccount(orgId: string, name: string) {
+    await this.assertOrganizationExists(orgId);
+    return this._organizationRepository.renameOrganization(orgId, name.trim());
+  }
+
+  async enterSubaccount(userId: string, orgId: string) {
+    await this.assertOrganizationExists(orgId);
+    await this._organizationRepository.joinOrganizationAsAdmin(userId, orgId);
+    return { id: orgId };
+  }
+
+  async archiveSubaccount(orgId: string, currentOrgId: string) {
+    await this.assertOrganizationExists(orgId);
+    if (orgId === currentOrgId) {
+      throw new HttpException('You cannot archive the subaccount you are in', 400);
+    }
+    if ((await this._organizationRepository.countActiveIntegrations(orgId)) > 0) {
+      throw new HttpException(
+        'Disconnect all the channels of this subaccount before archiving it',
+        400
+      );
+    }
+    return this._organizationRepository.deleteOrganization(orgId);
+  }
+
+  private async assertOrganizationExists(orgId: string) {
+    const org = await this._organizationRepository.getOrgById(orgId);
+    if (!org || org.deletedAt) {
+      throw new HttpException('Subaccount not found', 404);
+    }
+  }
+
   getShortlinkPreference(orgId: string) {
     return this._organizationRepository.getShortlinkPreference(orgId);
   }

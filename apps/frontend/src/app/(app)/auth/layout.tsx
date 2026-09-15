@@ -24,16 +24,13 @@ export default async function AuthLayout({
       </div>
       <div className="flex-1 hidden lg:flex flex-col items-center justify-center gap-[28px] px-[40px]">
         <img
-          src="/mrbox-logo-dark.png"
-          alt="Mister Box"
-          className="w-[360px] max-w-[70%] h-auto"
+          src="/viralstarz-logo.png"
+          alt="Viral Starz"
+          className="w-[380px] max-w-[70%] h-auto"
         />
         <div className="text-center flex flex-col gap-[10px]">
-          <div className="text-[34px] font-[600] leading-tight">
-            Mr Box <span className="text-[#6221FF]">Social</span>
-          </div>
           <div className="text-[18px] text-[#9aa3b6] max-w-[520px]">
-            Il piano editoriale di Mister Box: un calendario, tutti i brand,
+            Il piano editoriale di Viral Starz: un calendario, tutti i brand,
             tutte le pagine. Carica, programma, pubblica.
           </div>
         </div>

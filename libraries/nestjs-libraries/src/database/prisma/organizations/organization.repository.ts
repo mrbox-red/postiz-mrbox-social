@@ -465,6 +465,170 @@ export class OrganizationRepository {
     });
   }
 
+  async createUserInOrganization(
+    body: Omit<CreateOrgUserDto, 'providerToken'>,
+    hasEmail: boolean,
+    ip: string,
+    userAgent: string,
+    invite: { id: string; orgId: string; role: 'USER' | 'ADMIN' }
+  ) {
+    const inviteUsed = await this._user.model.user.findFirst({
+      where: {
+        inviteId: invite.id,
+      },
+    });
+
+    if (inviteUsed) {
+      throw new Error('This invitation link was already used');
+    }
+
+    const organization = await this._organization.model.organization.findFirst({
+      where: {
+        id: invite.orgId,
+        deletedAt: null,
+      },
+    });
+
+    if (!organization) {
+      throw new Error('This invitation is no longer valid');
+    }
+
+    return this._user.model.user.create({
+      data: {
+        activated: body.provider !== 'LOCAL' || !hasEmail,
+        email: body.email,
+        password: body.password ? AuthService.hashPassword(body.password) : '',
+        providerName: body.provider,
+        providerId: '',
+        timezone: 0,
+        ip,
+        agent: userAgent,
+        inviteId: invite.id,
+        organizations: {
+          create: {
+            organizationId: invite.orgId,
+            role: invite.role,
+          },
+        },
+      },
+      include: {
+        organizations: {
+          select: {
+            organizationId: true,
+          },
+        },
+      },
+    });
+  }
+
+  getAllOrganizations(userId: string) {
+    return this._organization.model.organization.findMany({
+      where: {
+        deletedAt: null,
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+      select: {
+        id: true,
+        name: true,
+        createdAt: true,
+        users: {
+          where: {
+            userId,
+          },
+          select: {
+            role: true,
+            disabled: true,
+          },
+        },
+        _count: {
+          select: {
+            users: true,
+            Integration: {
+              where: {
+                deletedAt: null,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async countActiveIntegrations(orgId: string) {
+    const org = await this._organization.model.organization.findUnique({
+      where: {
+        id: orgId,
+      },
+      select: {
+        _count: {
+          select: {
+            Integration: {
+              where: {
+                deletedAt: null,
+              },
+            },
+          },
+        },
+      },
+    });
+    return org?._count?.Integration || 0;
+  }
+
+  createSubaccount(name: string, userId: string) {
+    return this._organization.model.organization.create({
+      data: {
+        name,
+        apiKey: AuthService.fixedEncryption(makeId(20)),
+        users: {
+          create: {
+            role: Role.SUPERADMIN,
+            userId,
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  }
+
+  renameOrganization(orgId: string, name: string) {
+    return this._organization.model.organization.update({
+      where: {
+        id: orgId,
+      },
+      data: {
+        name,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  }
+
+  joinOrganizationAsAdmin(userId: string, orgId: string) {
+    return this._userOrg.model.userOrganization.upsert({
+      where: {
+        userId_organizationId: {
+          userId,
+          organizationId: orgId,
+        },
+      },
+      update: {
+        disabled: false,
+      },
+      create: {
+        userId,
+        organizationId: orgId,
+        role: Role.ADMIN,
+      },
+    });
+  }
+
   deleteOrganization(orgId: string) {
     return this._organization.model.organization.update({
       where: {

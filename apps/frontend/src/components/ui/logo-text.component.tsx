@@ -1,18 +1,13 @@
 import React from 'react';
 
-// Mr Box Social — logo testuale, due varianti per tema (body.dark / body.light)
+// Viral Starz — logo testuale (pagina di accesso e billing)
 export const LogoTextComponent = () => {
   return (
-    <div className="flex items-center h-[44px]">
+    <div className="flex items-center h-[64px]">
       <img
-        src="/mrbox-logo-dark.png"
-        alt="Mr Box Social"
-        className="mrbox-logo-on-dark h-[44px] w-auto"
-      />
-      <img
-        src="/mrbox-logo-light.png"
-        alt="Mr Box Social"
-        className="mrbox-logo-on-light h-[44px] w-auto"
+        src="/viralstarz-logo.png"
+        alt="Viral Starz"
+        className="h-[64px] w-auto"
       />
     </div>
   );
