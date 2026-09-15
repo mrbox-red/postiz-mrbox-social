@@ -121,8 +121,8 @@ export const SettingsPopup: FC<{
 
   return (
     <>
-      <div className="bg-newBgColorInner p-[20px] flex flex-col transition-all w-[260px]">
-        <div className="flex flex-1 flex-col gap-[15px]">
+      <div className="bg-newBgColorInner p-[20px] flex flex-col transition-all w-[260px] min-h-0 max-h-[calc(100vh-105px)]">
+        <div className="flex flex-1 flex-col gap-[15px] min-h-0 overflow-y-auto">
           {list.map(({ tab: tabKey, label }) => (
             <div
               key={tabKey}
@@ -144,12 +144,11 @@ export const SettingsPopup: FC<{
             </div>
           ))}
         </div>
-        <div>
-          {showLogout && (
-            <div className="mt-4">
-              <LogoutComponent />
-            </div>
-          )}
+        {/* Viral Starz: "Disconnetti" sempre presente e fissato in fondo alla colonna */}
+        <div className="shrink-0">
+          <div className="mt-4">
+            <LogoutComponent />
+          </div>
         </div>
       </div>
       <div className="bg-newBgColorInner flex-1 flex-col flex p-[20px] gap-[12px]">
