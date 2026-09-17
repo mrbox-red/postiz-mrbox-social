@@ -1,0 +1,18 @@
+[Unit]
+Description=Viral Starz report bridge (Postiz -> Claude Code)
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+User=vsreport
+WorkingDirectory=/srv/viralstarz-report/work
+EnvironmentFile=/root/.config/viralstarz-report/env
+Environment=HOME=/srv/viralstarz-report
+Environment=PATH=/srv/viralstarz-report/.local/bin:/usr/local/bin:/usr/bin:/bin
+Environment=BRIDGE_WORKDIR=/srv/viralstarz-report/work
+ExecStart=/usr/bin/python3 /usr/local/bin/viralstarz-report-bridge
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
