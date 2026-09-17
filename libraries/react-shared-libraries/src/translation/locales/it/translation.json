@@ -753,5 +753,12 @@
   "enter_subaccount": "Entra",
   "rename": "Rinomina",
   "archive": "Archivia",
-  "members": "Membri"
+  "members": "Membri",
+  "meta_notice_title": "Prima di collegare Facebook o Instagram",
+  "meta_notice_intro": "Per collegare le tue pagine devi prima accettare l'invito che Viral Starz ti ha mandato su Facebook. Si fa una volta sola.",
+  "meta_notice_step_1": "Su Facebook apri Impostazioni e privacy › Impostazioni › App e siti web › Inviti e accetta l'invito \"Viral Starz\".",
+  "meta_notice_step_2": "Torna qui e premi Continua: si apre Facebook, scegli le pagine da collegare.",
+  "meta_notice_warning": "Non usare il link nella notifica di Facebook: porta al portale sviluppatori e chiede una registrazione che non serve. Se non trovi l'invito, chiedi a chi ti ha creato l'account Viral Starz: deve aggiungerti nell'app con il tuo nome Facebook.",
+  "meta_notice_error_hint": "Se dopo Continua Facebook mostra \"Funzione non disponibile\", l'invito non è ancora stato accettato.",
+  "meta_notice_continue": "Continua"
 }

@@ -775,5 +775,12 @@
   "enter_subaccount": "Enter",
   "rename": "Rename",
   "archive": "Archive",
-  "members": "Members"
+  "members": "Members",
+  "meta_notice_title": "Before connecting Facebook or Instagram",
+  "meta_notice_intro": "To connect your pages you first need to accept the invitation Viral Starz sent you on Facebook. You only do this once.",
+  "meta_notice_step_1": "On Facebook open Settings & privacy › Settings › Apps and websites › Invites and accept the \"Viral Starz\" invitation.",
+  "meta_notice_step_2": "Come back here and press Continue: Facebook opens, pick the pages to connect.",
+  "meta_notice_warning": "Do not use the link in the Facebook notification: it leads to the developer portal and asks for a registration you do not need. If you cannot find the invitation, ask the person who created your Viral Starz account: they must add you to the app with your Facebook name.",
+  "meta_notice_error_hint": "If after Continue Facebook shows \"Feature unavailable\", the invitation has not been accepted yet.",
+  "meta_notice_continue": "Continue"
 }
