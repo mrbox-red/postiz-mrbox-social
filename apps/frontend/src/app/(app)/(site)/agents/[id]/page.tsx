@@ -1,12 +1,6 @@
-import { Metadata } from 'next';
-import { Agent } from '@gitroom/frontend/components/agents/agent';
-import { AgentChat } from '@gitroom/frontend/components/agents/agent.chat';
-export const metadata: Metadata = {
-  title: 'Viral Starz - Agent',
-  description: '',
-};
+import { redirect } from 'next/navigation';
+
+// Viral Starz: le vecchie conversazioni dell'agente Postiz non esistono più.
 export default async function Page() {
-  return (
-    <AgentChat />
-  );
+  return redirect('/agents');
 }

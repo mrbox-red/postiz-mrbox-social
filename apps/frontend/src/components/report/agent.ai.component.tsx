@@ -1,6 +1,6 @@
 'use client';
 
-// Viral Starz: report AI del subaccount corrente, in forma di chat.
+// Viral Starz: agente AI (Claude) del subaccount corrente: chat sui dati social e report.
 // I numeri arrivano già calcolati dal backend; Claude scrive solo i testi.
 
 import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'react';
@@ -211,7 +211,7 @@ const ReportCard: FC<{ data: ReportData; narrative: Narrative | null }> = ({ dat
   );
 };
 
-export const ReportComponent: FC = () => {
+export const AgentAiComponent: FC = () => {
   const fetch = useFetch();
   const toast = useToaster();
   const [days, setDays] = useState(15);
@@ -275,31 +275,60 @@ export const ReportComponent: FC = () => {
     );
   }, [days, run]);
 
-  const ask = useCallback(() => {
+  const send = useCallback(() => {
     const text = question.trim();
-    if (!text || !sessionId) return;
+    if (!text) return;
     setQuestion('');
     setMessages((m) => [...m, { kind: 'question', text }]);
     run(
-      'Sto pensando…',
-      () => fetch('/report/ask', { method: 'POST', body: JSON.stringify({ sessionId, question: text }) }),
-      (result) => ({ kind: 'answer', text: result.text })
+      sessionId ? 'Sto pensando…' : `Sto leggendo i dati degli ultimi ${days} giorni…`,
+      () =>
+        fetch('/report/chat', {
+          method: 'POST',
+          body: JSON.stringify({ days, message: text, ...(sessionId ? { sessionId } : {}) }),
+        }),
+      (result) => {
+        setSessionId(result.sessionId);
+        return { kind: 'answer', text: result.text };
+      }
     );
-  }, [question, sessionId, run]);
+  }, [question, sessionId, days, run]);
+
+  const changeDays = useCallback((p: number) => {
+    // cambiando periodo la conversazione successiva riparte con i dati nuovi
+    setDays(p);
+    setSessionId(null);
+  }, []);
+
+  const newChat = useCallback(() => {
+    setMessages([]);
+    setSessionId(null);
+    setQuestion('');
+  }, []);
 
   return (
     <div className="bg-newBgColorInner flex flex-col flex-1 min-h-0 h-[calc(100vh-105px)]">
       <div className="flex flex-wrap items-center gap-[12px] px-[24px] py-[16px] border-b border-newTableBorder">
         <div className="flex-1 min-w-[200px] text-[14px] text-customColor18">
-          Analisi AI dei canali di questo subaccount
+          Agente AI sui canali di questo subaccount
         </div>
+        {messages.length > 0 && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={newChat}
+            className="px-[14px] py-[8px] text-[13px] rounded-[8px] border border-newTableBorder hover:bg-newBgColor"
+          >
+            Nuova chat
+          </button>
+        )}
         <div className="flex rounded-[8px] overflow-hidden border border-newTableBorder">
           {PERIODS.map((p) => (
             <button
               key={p}
               type="button"
               disabled={busy}
-              onClick={() => setDays(p)}
+              onClick={() => changeDays(p)}
               className={clsx('px-[14px] py-[8px] text-[13px]', days === p ? 'bg-[#6221FF] text-white' : 'hover:bg-newBgColor')}
             >
               {p} giorni
@@ -314,8 +343,12 @@ export const ReportComponent: FC = () => {
       <div data-report-scroll className="flex-1 min-h-0 overflow-y-auto px-[24px] py-[24px]">
         <div className="flex flex-col gap-[16px] items-center">
           {!messages.length && (
-            <div className="text-center text-customColor18 mt-[80px] max-w-[460px] text-[14px] leading-[1.6]">
-              Scegli il periodo e premi <strong className="text-textColor">Genera report</strong>. Dopo il report puoi fare domande sugli stessi dati.
+            <div className="text-center text-customColor18 mt-[80px] max-w-[520px] text-[14px] leading-[1.6] flex flex-col gap-[10px]">
+              <div className="text-[20px] font-[600] text-textColor">Ciao, sono l&apos;agente AI di Viral Starz.</div>
+              <div>
+                Analizzo i canali di questo subaccount. Scegli il periodo e premi <strong className="text-textColor">Genera report</strong>, oppure scrivimi una domanda qui sotto.
+              </div>
+              <div>Non pubblico e non modifico post: leggo i dati e ti aiuto a capirli.</div>
             </div>
           )}
           {messages.map((m, i) =>
@@ -341,27 +374,25 @@ export const ReportComponent: FC = () => {
         </div>
       </div>
 
-      {sessionId && (
-        <form
-          className="flex gap-[10px] px-[24px] py-[14px] border-t border-newTableBorder"
-          onSubmit={(e) => {
-            e.preventDefault();
-            ask();
-          }}
-        >
-          <input
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            disabled={busy}
-            maxLength={2000}
-            placeholder="Fai una domanda su questo report…"
-            className="flex-1 bg-newBgColor rounded-[8px] px-[14px] py-[10px] text-[14px] outline-none border border-newTableBorder"
-          />
-          <Button type="submit" disabled={busy || question.trim().length < 2}>
-            Invia
-          </Button>
-        </form>
-      )}
+      <form
+        className="flex gap-[10px] px-[24px] py-[14px] border-t border-newTableBorder"
+        onSubmit={(e) => {
+          e.preventDefault();
+          send();
+        }}
+      >
+        <input
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          disabled={busy}
+          maxLength={2000}
+          placeholder="Scrivi un messaggio…"
+          className="flex-1 bg-newBgColor rounded-[8px] px-[14px] py-[10px] text-[14px] outline-none border border-newTableBorder"
+        />
+        <Button type="submit" disabled={busy || !question.trim()}>
+          Invia
+        </Button>
+      </form>
     </div>
   );
 };

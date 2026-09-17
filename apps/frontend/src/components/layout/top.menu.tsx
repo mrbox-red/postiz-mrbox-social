@@ -94,27 +94,6 @@ export const useMenuItem = () => {
       path: '/analytics',
     },
     {
-      name: 'Report',
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="21"
-          viewBox="0 0 20 21"
-          fill="none"
-        >
-          <path
-            d="M11.5 1.5H5.3C4.18 1.5 3.62 1.5 3.19 1.72C2.81 1.91 2.51 2.21 2.32 2.59C2.1 3.02 2.1 3.58 2.1 4.7V16.3C2.1 17.42 2.1 17.98 2.32 18.41C2.51 18.79 2.81 19.09 3.19 19.28C3.62 19.5 4.18 19.5 5.3 19.5H14.7C15.82 19.5 16.38 19.5 16.81 19.28C17.19 19.09 17.49 18.79 17.68 18.41C17.9 17.98 17.9 17.42 17.9 16.3V7.9M11.5 1.5L17.9 7.9M11.5 1.5V6.3C11.5 6.86 11.5 7.14 11.61 7.35C11.7 7.54 11.86 7.7 12.05 7.79C12.26 7.9 12.54 7.9 13.1 7.9H17.9M6.5 15.5V12.5M10 15.5V10.5M13.5 15.5V13"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      path: '/report',
-    },
-    {
       name: t('media', 'Media'),
       icon: (
         <svg

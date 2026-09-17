@@ -11,11 +11,11 @@ import { Organization } from '@prisma/client';
 import { GetOrgFromRequest } from '@gitroom/nestjs-libraries/user/org.from.request';
 import { ReportAiService } from '@gitroom/nestjs-libraries/report/report.ai.service';
 import {
-  ReportAskDto,
+  ReportChatDto,
   ReportGenerateDto,
 } from '@gitroom/nestjs-libraries/dtos/report/report.dto';
 
-// Viral Starz: report AI del subaccount corrente (solo lettura, niente pubblicazioni).
+// Viral Starz: agente AI (Claude) del subaccount corrente: report e chat sui dati, solo lettura.
 @ApiTags('Report')
 @Controller('/report')
 export class ReportController {
@@ -26,10 +26,10 @@ export class ReportController {
     return this._reportAiService.generate(org, body.days);
   }
 
-  @Post('/ask')
-  async ask(@GetOrgFromRequest() org: Organization, @Body() body: ReportAskDto) {
+  @Post('/chat')
+  async chat(@GetOrgFromRequest() org: Organization, @Body() body: ReportChatDto) {
     try {
-      return await this._reportAiService.ask(org, body.sessionId, body.question);
+      return await this._reportAiService.chat(org, body.message, body.days, body.sessionId);
     } catch (e) {
       throw new HttpException((e as Error).message, 400);
     }

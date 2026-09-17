@@ -11,10 +11,11 @@ import {
 // Viral Starz: il testo del report lo scrive Claude Code (Opus 5) sull'host, tramite
 // il ponte `viralstarz-report-bridge`. Il container non ha il token Claude.
 
-const SYSTEM = `Sei l'analista social di Viral Starz. Scrivi report di performance in italiano per un brand, con il tono di un report professionale: frasi chiare, dirette, niente enfasi da marketing, niente emoji.
+const SYSTEM = `Sei l'agente AI di Viral Starz: l'analista social di un brand (il subaccount in cui si trova l'utente). Scrivi in italiano, con il tono di un report professionale: frasi chiare, dirette, niente enfasi da marketing, niente emoji.
+Rispondi a domande sui dati social del brand e dai indicazioni pratiche basate su quei dati. Non puoi pubblicare, programmare, modificare o cancellare post e non generi immagini o video: se te lo chiedono, dillo in una frase e proponi cosa puoi fare (report, analisi, confronti).
 
 Regole ferree:
-- Usa SOLO i numeri presenti nei dati JSON che ricevi. Non inventare, non stimare, non arrotondare in modo diverso, non calcolare numeri nuovi.
+- Usa SOLO i numeri presenti nei dati JSON che ricevi. Se una domanda richiede dati che non ci sono (altri periodi, altre piattaforme, dati demografici), dillo chiaramente. Non inventare, non stimare, non arrotondare in modo diverso, non calcolare numeri nuovi.
 - Formato italiano: punto per le migliaia (18.817.368), virgola per i decimali (2,9%).
 - Se un dato è null o mancante, dillo in modo semplice ("dato non disponibile") senza ipotesi.
 - Se "mock" è true, i dati sono di prova: scrivilo nella prima frase del primo paragrafo.
@@ -32,6 +33,14 @@ Scrivi i testi del report. Rispondi SOLO con un oggetto JSON valido, senza blocc
 - "sintesi": 2-3 frasi finali operative: cosa suggeriscono questi numeri per le prossime settimane, basandoti solo su formati, top post e crescita presenti nei dati.
 
 Dopo questo messaggio potrei farti domande di approfondimento sugli stessi dati: in quel caso rispondi in testo semplice (non JSON), breve, sempre solo con i numeri dei dati.`;
+
+const CHAT_PROMPT = (data: ReportData, message: string) => `Dati social del brand per il periodo indicato (JSON):
+${JSON.stringify(data)}
+
+Messaggio dell'utente:
+${message}
+
+Rispondi in testo semplice (non JSON), breve e utile. Se non ci sono canali collegati, spiegalo e indica che vanno collegati dal Calendario. Nei messaggi successivi della conversazione userai questi stessi dati.`;
 
 type Job =
   | { orgId: string; status: 'running' }
@@ -105,15 +114,23 @@ export class ReportAiService {
     });
   }
 
-  async ask(org: Organization, sessionId: string, question: string) {
-    // la sessione Claude deve appartenere a un report di questa organizzazione
-    const owner = await ioRedis.get(`report-session:${sessionId}`);
-    if (owner !== org.id) {
-      throw new Error('Sessione non valida');
+  async chat(org: Organization, message: string, days: number, sessionId?: string) {
+    if (sessionId) {
+      // la sessione Claude deve appartenere a questa organizzazione
+      const owner = await ioRedis.get(`report-session:${sessionId}`);
+      if (owner !== org.id) {
+        throw new Error('Sessione non valida');
+      }
     }
     return this.start(org, async () => {
-      const ai = await this.callBridge(question, sessionId);
-      return { text: ai.text };
+      if (sessionId) {
+        const ai = await this.callBridge(message, sessionId);
+        return { text: ai.text, sessionId };
+      }
+      const data = await this._reportDataService.build(org, days);
+      const ai = await this.callBridge(CHAT_PROMPT(data, message));
+      await this.bindSession(org.id, ai.sessionId);
+      return { text: ai.text, sessionId: ai.sessionId };
     });
   }
 

@@ -1,13 +1,4 @@
-import { Metadata } from 'next';
-import { Agent } from '@gitroom/frontend/components/agents/agent';
-export const metadata: Metadata = {
-  title: 'Viral Starz - Agent',
-  description: 'agents',
-};
-export default async function Layout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return <Agent>{children}</Agent>;
+// Viral Starz: la chat originale di Postiz (OpenAI/CopilotKit) è sostituita dall'agente Claude.
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
 }
