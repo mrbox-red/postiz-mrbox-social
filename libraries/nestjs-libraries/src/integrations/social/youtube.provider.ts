@@ -60,14 +60,13 @@ export class YoutubeProvider extends SocialAbstract implements SocialProvider {
   name = 'YouTube';
   isBetweenSteps = true;
   dto = YoutubeSettingsDto;
+  // Viral Starz: solo gli scope usati (youtube.force-ssl copre caricamento video, miniature,
+  // lettura canale/video; yt-analytics per le statistiche). Tolti youtube, youtube.readonly,
+  // youtube.upload (ridondanti) e youtubepartner (solo partner, bocciato in verifica).
   scopes = [
     'https://www.googleapis.com/auth/userinfo.profile',
     'https://www.googleapis.com/auth/userinfo.email',
-    'https://www.googleapis.com/auth/youtube',
     'https://www.googleapis.com/auth/youtube.force-ssl',
-    'https://www.googleapis.com/auth/youtube.readonly',
-    'https://www.googleapis.com/auth/youtube.upload',
-    'https://www.googleapis.com/auth/youtubepartner',
     'https://www.googleapis.com/auth/yt-analytics.readonly',
   ];
 

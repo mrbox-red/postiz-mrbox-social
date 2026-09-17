@@ -32,9 +32,10 @@ export class FacebookProvider extends SocialAbstract implements SocialProvider {
   identifier = 'facebook';
   name = 'Facebook Page';
   isBetweenSteps = true;
+  // Viral Starz: niente business_management (permesso pesante in App Review, serviva solo
+  // a elencare le pagine via Business Manager: /me/businesses fallisce in silenzio e basta /me/accounts)
   scopes = [
     'pages_show_list',
-    'business_management',
     'pages_manage_posts',
     'pages_manage_engagement',
     'pages_read_engagement',
