@@ -34,10 +34,11 @@ export class FacebookProvider extends SocialAbstract implements SocialProvider {
   isBetweenSteps = true;
   // Viral Starz: niente business_management (permesso pesante in App Review, serviva solo
   // a elencare le pagine via Business Manager: /me/businesses fallisce in silenzio e basta /me/accounts)
+  // Viral Starz: niente pages_manage_engagement (serviva solo ai commenti "thread" sotto ai post,
+  // e in App Review trascina pages_read_user_content). Richiesta accesso avanzato: 4 permessi Facebook.
   scopes = [
     'pages_show_list',
     'pages_manage_posts',
-    'pages_manage_engagement',
     'pages_read_engagement',
     'read_insights',
   ];
