@@ -25,6 +25,28 @@ import { Rules } from '@gitroom/nestjs-libraries/chat/rules.description.decorato
 
 export const META_GRAPH_API_VERSION = 'v25.0';
 
+// Viral Starz: le pagine gestite tramite Business Manager non compaiono in /me/accounts
+// senza business_management. Gli ID spuntati nel dialog di Meta stanno in debug_token
+// (granular_scopes → target_ids) e la pagina si legge direttamente per ID.
+export const metaSelectedPageIds = async (
+  accessToken: string
+): Promise<string[]> => {
+  try {
+    const { data } = await (
+      await fetch(
+        `https://graph.facebook.com/${META_GRAPH_API_VERSION}/debug_token?input_token=${accessToken}&access_token=${process.env.FACEBOOK_APP_ID}|${process.env.FACEBOOK_APP_SECRET}`
+      )
+    ).json();
+
+    return (
+      data?.granular_scopes?.find((s: any) => s.scope === 'pages_show_list')
+        ?.target_ids || []
+    );
+  } catch {
+    return [];
+  }
+};
+
 @Rules(
   "Facebook posts can be text only, or include photos or a video. If it's a story, it must have at least one attachment (photo or video), and each media is published as a separate story."
 )
@@ -389,6 +411,24 @@ export class FacebookProvider extends SocialAbstract implements SocialProvider {
       // Business Manager API not available for all users
     }
 
+    // Viral Starz: pagine spuntate nel dialog ma assenti da /me/accounts
+    for (const pageId of await metaSelectedPageIds(accessToken)) {
+      if (seenIds.has(pageId)) {
+        continue;
+      }
+
+      const page = await (
+        await fetch(
+          `https://graph.facebook.com/${META_GRAPH_API_VERSION}/${pageId}?fields=id,username,name,access_token,picture.type(large)&access_token=${accessToken}`
+        )
+      ).json();
+
+      if (page?.id) {
+        seenIds.add(page.id);
+        allPages.push(page);
+      }
+    }
+
     return allPages;
   }
 
@@ -424,6 +464,22 @@ export class FacebookProvider extends SocialAbstract implements SocialProvider {
       `https://graph.facebook.com/${META_GRAPH_API_VERSION}/me/accounts?fields=${fields}&limit=100&access_token=${accessToken}`
     );
     if (fromAccounts) return fromAccounts;
+
+    // Viral Starz: pagina gestita via Business Manager, si legge direttamente per ID
+    const direct = await (
+      await fetch(
+        `https://graph.facebook.com/${META_GRAPH_API_VERSION}/${pageId}?fields=${fields}&access_token=${accessToken}`
+      )
+    ).json();
+    if (direct?.id && direct?.access_token) {
+      return {
+        id: direct.id,
+        name: direct.name,
+        access_token: direct.access_token,
+        picture: direct.picture?.data?.url || '',
+        username: direct.username,
+      };
+    }
 
     // 2. Check Business Manager owned_pages and client_pages
     try {

@@ -17,7 +17,10 @@ import {
 import { InstagramDto } from '@gitroom/nestjs-libraries/dtos/posts/providers-settings/instagram.dto';
 import { Integration } from '@prisma/client';
 import { Rules } from '@gitroom/nestjs-libraries/chat/rules.description.decorator';
-import { META_GRAPH_API_VERSION } from '@gitroom/nestjs-libraries/integrations/social/facebook.provider';
+import {
+  META_GRAPH_API_VERSION,
+  metaSelectedPageIds,
+} from '@gitroom/nestjs-libraries/integrations/social/facebook.provider';
 import { Tool } from '@gitroom/nestjs-libraries/integrations/tool.decorator';
 import { hasExtension } from '@gitroom/helpers/utils/has.extension';
 
@@ -544,6 +547,24 @@ export class InstagramProvider
       }
     } catch {
       // Business Manager API not available for all users
+    }
+
+    // Viral Starz: pagine spuntate nel dialog ma assenti da /me/accounts
+    for (const pageId of await metaSelectedPageIds(accessToken)) {
+      if (seenPageIds.has(pageId)) {
+        continue;
+      }
+
+      const page = await (
+        await fetch(
+          `https://graph.facebook.com/${META_GRAPH_API_VERSION}/${pageId}?fields=id,instagram_business_account,username,name,picture.type(large)&access_token=${accessToken}`
+        )
+      ).json();
+
+      if (page?.id) {
+        seenPageIds.add(page.id);
+        allFacebookPages.push(page);
+      }
     }
 
     const onlyConnectedAccounts = await Promise.all(
