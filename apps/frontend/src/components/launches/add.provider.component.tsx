@@ -19,10 +19,6 @@ import { useT } from '@gitroom/react/translation/get.transation.service.client';
 import clsx from 'clsx';
 import copy from 'copy-to-clipboard';
 import { capitalize } from 'lodash';
-import {
-  MetaAccessNotice,
-  META_NOTICE_IDENTIFIERS,
-} from '@gitroom/frontend/components/launches/meta.access.notice';
 const resolver = classValidatorResolver(ApiKeyDto);
 
 export const useAddProvider = (update?: () => void, invite?: boolean) => {
@@ -430,43 +426,9 @@ export const AddProviderComponent: FC<{
           defaultValue?: string;
           type: 'text' | 'password';
           hint?: string;
-        }>,
-        skipMetaNotice?: boolean
+        }>
       ) =>
       async () => {
-        if (
-          !skipMetaNotice &&
-          !invite &&
-          META_NOTICE_IDENTIFIERS.includes(identifier)
-        ) {
-          const noticeId = `meta-notice-${identifier}`;
-          modal.openModal({
-            id: noticeId,
-            title: t(
-              'meta_notice_title',
-              'Prima di collegare Facebook o Instagram'
-            ),
-            withCloseButton: true,
-            children: (
-              <MetaAccessNotice
-                onCancel={() => modal.closeById(noticeId)}
-                onContinue={() => {
-                  modal.closeById(noticeId);
-                  getSocialLink(
-                    invite,
-                    identifier,
-                    isExternal,
-                    isWeb3,
-                    isChromeExtension,
-                    customFields,
-                    true
-                  )();
-                }}
-              />
-            ),
-          });
-          return;
-        }
         const onboardingParam = onboarding ? 'onboarding=true' : '';
         const openWeb3 = async () => {
           const { component: Web3Providers } = web3List.find(

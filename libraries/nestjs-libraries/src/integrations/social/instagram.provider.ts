@@ -35,13 +35,17 @@ export class InstagramProvider
   name = 'Instagram\n(Facebook Business)';
   isBetweenSteps = true;
   toolTip = 'Instagram must be business and connected to a Facebook page';
+  // Viral Starz 28/9: instagram_manage_insights RESPINTO dall'App Review Meta (il video non mostrava
+  // le metriche legate all'account). Si chiede solo con META_INSIGHTS_SCOPES=true, vedi facebook.provider.
   scopes = [
     'instagram_basic',
     'pages_show_list',
     'pages_read_engagement',
     'instagram_content_publish',
     'instagram_manage_comments',
-    'instagram_manage_insights',
+    ...(process.env.META_INSIGHTS_SCOPES === 'true'
+      ? ['instagram_manage_insights']
+      : []),
   ];
   override maxConcurrentJob = 400;
   editor = 'normal' as const;

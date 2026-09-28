@@ -57,12 +57,16 @@ export class FacebookProvider extends SocialAbstract implements SocialProvider {
   // Viral Starz: niente business_management (permesso pesante in App Review, serviva solo
   // a elencare le pagine via Business Manager: /me/businesses fallisce in silenzio e basta /me/accounts)
   // Viral Starz: niente pages_manage_engagement (serviva solo ai commenti "thread" sotto ai post,
-  // e in App Review trascina pages_read_user_content). Richiesta accesso avanzato: 4 permessi Facebook.
+  // e in App Review trascina pages_read_user_content).
+  // Viral Starz 28/9: read_insights RESPINTO dall'App Review Meta (il video non mostrava le metriche
+  // legate a una pagina). Chiederlo al login blocca chi non ha un ruolo sull'app, quindi si chiede
+  // solo con META_INSIGHTS_SCOPES=true (acceso il tempo di registrare il video per la ri-richiesta,
+  // poi di nuovo quando il permesso è approvato). Accesso avanzato oggi: 3 permessi Facebook.
   scopes = [
     'pages_show_list',
     'pages_manage_posts',
     'pages_read_engagement',
-    'read_insights',
+    ...(process.env.META_INSIGHTS_SCOPES === 'true' ? ['read_insights'] : []),
   ];
   override maxConcurrentJob = 500; // Facebook has reasonable rate limits
   editor = 'normal' as const;
