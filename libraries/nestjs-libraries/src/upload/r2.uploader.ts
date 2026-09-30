@@ -30,6 +30,17 @@ const ALLOWED_EXT_TO_MIME: Record<string, string> = {
   '.mp4': 'video/mp4',
 };
 
+// Mime rilevati da file-type accettati per estensione (oltre a quello canonico):
+// gli .mp4 esportati da QuickTime/iPhone hanno brand `qt  ` (video/quicktime) o `M4V`.
+const ALLOWED_DETECTED_MIMES: Record<string, string[]> = {
+  '.mp4': ['video/mp4', 'video/quicktime', 'video/x-m4v'],
+};
+
+function isDetectedMimeAllowed(ext: string, mime: string): boolean {
+  const allowed = ALLOWED_DETECTED_MIMES[ext] || [ALLOWED_EXT_TO_MIME[ext]];
+  return allowed.includes(mime);
+}
+
 function normalizeExtension(filename: string): string | null {
   const ext = path.extname(filename || '').toLowerCase();
   return ALLOWED_EXT_TO_MIME[ext] ? ext : null;
@@ -205,7 +216,6 @@ export async function completeMultipartUpload(req: Request, res: Response) {
       );
       return res.status(400).json({ message: 'Unsupported file type.' });
     }
-    const expectedMime = ALLOWED_EXT_TO_MIME[safeExt];
 
     const head = await R2.send(
       new GetObjectCommand({
@@ -222,7 +232,7 @@ export async function completeMultipartUpload(req: Request, res: Response) {
     const prefix = Buffer.concat(chunks);
     const detected = await fileTypeFromBuffer(prefix);
 
-    if (!detected || detected.mime !== expectedMime) {
+    if (!detected || !isDetectedMimeAllowed(safeExt, detected.mime)) {
       await R2.send(
         new DeleteObjectCommand({ Bucket: CLOUDFLARE_BUCKETNAME, Key: key })
       );

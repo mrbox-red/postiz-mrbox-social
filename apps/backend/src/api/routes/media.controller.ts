@@ -159,7 +159,8 @@ export class MediaController {
     @Param('endpoint') endpoint: string
   ) {
     const upload = await handleR2Upload(endpoint, req, res);
-    if (endpoint !== 'complete-multipart-upload') {
+    // Se l'uploader ha già risposto (400/500), non c'è nessun Location da leggere.
+    if (endpoint !== 'complete-multipart-upload' || res.headersSent) {
       return upload;
     }
 
